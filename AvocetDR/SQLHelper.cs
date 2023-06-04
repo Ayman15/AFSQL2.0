@@ -16,7 +16,7 @@ namespace AFSDK_AvocetDR
      *****************************************************************************************/
     class SQLHelper
     {
-        public static SqlDataReader GetSQLData(string sqlServer, string sqlDb, string sqlTable, DateTime startTime, DateTime endTime)
+        public static SqlDataReader GetSQLData(string sqlServer, string sqlDb, string sqlTable, DateTime startTime, DateTime endTime, string sqlcolumn, string sqlTimestamp)
         {
             // Construct connection string to SQL Server based on input parameters for SQL server name and database name.
             string connectString = String.Format("server={0}; database={1}; Integrated Security=SSPI; Connection Timeout=10", sqlServer, sqlDb);
@@ -31,7 +31,7 @@ namespace AFSDK_AvocetDR
                 // SQL query for the most recent values before the end time
                 if (startTime == DateTime.MinValue)
                 {
-                    query = String.Format("SELECT TOP 1 pi_time, pi_value FROM {0}.{1} WHERE pi_time <= @time ORDER BY pi_time DESC", sqlDb, sqlTable);
+                    query = String.Format("SELECT TOP 1 {3}, {2} FROM {0}.{1} WHERE {3} <= @time ORDER BY {3} DESC", sqlDb, sqlTable, sqlcolumn, sqlTimestamp);
                     SqlParameter sqlTime = cmd.Parameters.Add(new SqlParameter("time", System.Data.SqlDbType.DateTime2));
                     sqlTime.Value = endTime;
                     cmd.CommandText = query;
@@ -40,7 +40,7 @@ namespace AFSDK_AvocetDR
                 // SQL query for all values over a specified time range
                 else
                 {
-                    query = String.Format("SELECT pi_time, pi_value FROM {0}.{1} WHERE pi_time >= @startTime AND pi_time <= @endTime ORDER BY pi_time ASC", sqlDb, sqlTable);
+                    query = String.Format("SELECT {3}, {2} FROM {0}.{1} WHERE {3} >= @startTime AND {3} <= @endTime ORDER BY {3} ASC", sqlDb, sqlTable, sqlcolumn, sqlTimestamp);
                     SqlParameter sqlStartTime = cmd.Parameters.Add(new SqlParameter("startTime", System.Data.SqlDbType.DateTime2));
                     SqlParameter sqlEndTime = cmd.Parameters.Add(new SqlParameter("endTime", System.Data.SqlDbType.DateTime2));
                     sqlStartTime.Value = startTime;

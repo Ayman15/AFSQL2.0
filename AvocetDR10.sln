@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32428.209
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvocetDR", "AvocetDR\AvocetDR.csproj", "{9D09C01E-B18D-47F7-BF96-E78CB66C5FF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvocetDR10", "AvocetDR\AvocetDR10.csproj", "{9D09C01E-B18D-47F7-BF96-E78CB66C5FF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

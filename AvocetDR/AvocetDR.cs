@@ -141,20 +141,45 @@ namespace AFSDK_AvocetDR
         {
             AFValue currentVal = new AFValue();
             DateTime time;
+            // Get the TimeZone ID to handle Day Saving Time
+             TimeZoneInfo localTZID = TimeZoneInfo.Local;
+            //TimeZoneInfo localTZ = TimeZoneInfo.FindSystemTimeZoneById(localTZID);
+
             if (timeContext != null)
             {
                 time = ((AFTime)timeContext).LocalTime;
             }
             else
             {
-                time = DateTime.Now;
+                time = AFTime.Now;
+                
             }
             using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, DateTime.MinValue, time, FieldColumn, TimestampColumn))
             {
                 if (reader.Read())
                 {
-                    currentVal.Timestamp = AFTime.Parse(reader[0].ToString());
-                    currentVal.Value = reader[1];
+                    DateTime queryOfSQLTimeStamp = DateTime.Parse(reader[0].ToString());
+                    queryOfSQLTimeStamp = DateTime.SpecifyKind(queryOfSQLTimeStamp, DateTimeKind.Local);
+                    if (localTZID.IsInvalidTime(queryOfSQLTimeStamp))
+                    {                        
+                        currentVal.Timestamp = queryOfSQLTimeStamp.AddHours(1);
+                        //currentVal.Value = -100;
+
+                    }
+                    else if(localTZID.IsAmbiguousTime(queryOfSQLTimeStamp)) 
+                    {
+                        currentVal.Timestamp = queryOfSQLTimeStamp.AddHours(-1);
+                        //currentVal.Value = -200;
+                    }
+                    else
+                    {
+                        currentVal.Timestamp = queryOfSQLTimeStamp ;
+                        currentVal.Value = reader[1];
+
+                    }
+
+                    
+
                 }
             }
 
@@ -165,14 +190,31 @@ namespace AFSDK_AvocetDR
         public override AFValues GetValues(object context, AFTimeRange timeRange, int numberOfValues, AFAttributeList inputAttributes, AFValues[] inputValues)
         {
             AFValues values = new AFValues();
-            DateTime startTime = timeRange.StartTime.LocalTime;
-            DateTime endTime = timeRange.EndTime.LocalTime;
+            // Get the TimeZone ID to handle Day Saving Time
+            TimeZoneInfo localTZID = TimeZoneInfo.Local;
+            //TimeZoneInfo localTZ = TimeZoneInfo.FindSystemTimeZoneById(localTZID);
+            DateTime startTime = DateTime.SpecifyKind(timeRange.StartTime, DateTimeKind.Local);
+            DateTime endTime = DateTime.SpecifyKind(timeRange.EndTime, DateTimeKind.Local);
             using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, startTime, endTime, FieldColumn, TimestampColumn))
             {
                 while (reader.Read())
                 {
                     AFValue newVal = new AFValue();
-                    newVal.Timestamp = AFTime.Parse(reader[0].ToString());
+                    DateTime queryOfSQLTimeStamp = DateTime.Parse(reader[0].ToString());
+                    queryOfSQLTimeStamp=DateTime.SpecifyKind(queryOfSQLTimeStamp, DateTimeKind.Local);
+                    if (localTZID.IsInvalidTime(queryOfSQLTimeStamp))
+                    {                      
+                        newVal.Timestamp = queryOfSQLTimeStamp.AddHours(1);                        
+                    }
+                    else if(localTZID.IsAmbiguousTime(queryOfSQLTimeStamp))
+                    {
+                        newVal.Timestamp = queryOfSQLTimeStamp.AddHours(-1);
+                    }
+                    else 
+                    {
+                        newVal.Timestamp = queryOfSQLTimeStamp;                           
+                    }
+
                     newVal.Value = reader[1];
                     values.Add(newVal);
                 }
