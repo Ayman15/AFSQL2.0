@@ -18,14 +18,16 @@ namespace AFSDK_AvocetDR
      * values from a specified SQL table. 
      *****************************************************************************/
     [Serializable]
-    [Guid("54EB22EE-DAD3-48B8-8BEA-9CA8B2643FD6")]
-    [Description("AvocetDR; Get values from slb Avocet SQLName, DBName, TableNam")]
+    [Guid("42B2AC6D-8A11-49DD-BD92-DC1F67CCBCC5")]
+    [Description("AvocetDR10.1; Get values from slb Avocet SQLName, DBName, TableNam, FieldColumn, TimestampColumn")]
     public class AvocetDR : AFDataReference
     {
         // Private fields storing configuration of data reference
         private string _tableName = String.Empty;
         private string _dbName = String.Empty;
         private string _sqlName = String.Empty;
+        private string _fieldcolumn = String.Empty;
+        private string _timestampcolumn=String.Empty;
 
         // Public property for name of the SQL table
         public string TableName
@@ -78,12 +80,46 @@ namespace AFSDK_AvocetDR
             }
         }
 
+        // Public property for name of the SQL table
+        public string FieldColumn
+        {
+            get
+            {
+                return _fieldcolumn;
+            }
+            set
+            {
+                if (_fieldcolumn != value)
+                {
+                    _fieldcolumn = value;
+                    SaveConfigChanges();
+                }
+            }
+        }
+
+        // Public property for name of the SQL table
+        public string TimestampColumn
+        {
+            get
+            {
+                return _timestampcolumn;
+            }
+            set
+            {
+                if (_timestampcolumn != value)
+                {
+                    _timestampcolumn = value;
+                    SaveConfigChanges();
+                }
+            }
+        }
+
         // Get or set the config string for the SQL data reference
         public override string ConfigString
         {
             get
             {
-                return String.Format("{0};{1};{2}", SQLName, DBName, TableName);
+                return String.Format("{0};{1};{2};{3};{4}", SQLName, DBName, TableName, FieldColumn, TimestampColumn);
             }
             set
             {
@@ -93,6 +129,8 @@ namespace AFSDK_AvocetDR
                     SQLName = configSplit[0];
                     DBName = configSplit[1];
                     TableName = configSplit[2];
+                    FieldColumn = configSplit[3];
+                    TimestampColumn = configSplit[4];
                     SaveConfigChanges();
                 }
             }
@@ -111,12 +149,12 @@ namespace AFSDK_AvocetDR
             {
                 time = DateTime.Now;
             }
-            using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, DateTime.MinValue, time))
+            using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, DateTime.MinValue, time, FieldColumn, TimestampColumn))
             {
                 if (reader.Read())
                 {
-                    currentVal.Timestamp = AFTime.Parse(reader["pi_time"].ToString());
-                    currentVal.Value = reader["pi_value"];
+                    currentVal.Timestamp = AFTime.Parse(reader[0].ToString());
+                    currentVal.Value = reader[1];
                 }
             }
 
@@ -129,13 +167,13 @@ namespace AFSDK_AvocetDR
             AFValues values = new AFValues();
             DateTime startTime = timeRange.StartTime.LocalTime;
             DateTime endTime = timeRange.EndTime.LocalTime;
-            using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, startTime, endTime))
+            using (SqlDataReader reader = SQLHelper.GetSQLData(SQLName, DBName, TableName, startTime, endTime, FieldColumn, TimestampColumn))
             {
                 while (reader.Read())
                 {
                     AFValue newVal = new AFValue();
-                    newVal.Timestamp = AFTime.Parse(reader["pi_time"].ToString());
-                    newVal.Value = reader["pi_value"];
+                    newVal.Timestamp = AFTime.Parse(reader[0].ToString());
+                    newVal.Value = reader[1];
                     values.Add(newVal);
                 }
             }
