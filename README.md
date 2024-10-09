@@ -1,3 +1,4 @@
+# AFSQL Custom Data Refeence of Asset Framework 
 This Application objective is to read data from Avocet (SLB Application for O&G Upstream)..
 Avocet is based on MS SQL Server. Avocet has table contain daily reading of O&G Wells, with timestamp
 this application will allow Asset Framework (AF) to read data stored in Avocet SQL DB beside PI Server. so AF can read data from multiple sources, without need to store all these data in PI Server ( to save tags)
