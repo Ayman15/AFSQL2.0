@@ -8,5 +8,6 @@ There are 3 C# files as following:
 2. EventPipe.cs : to take care of Data Piping from SQL to AF.
 3. SQLHelper.cs : to handle to connectivity with Avocet SQL Server.
 
-Note: in near future , I am planning to use Entity Framework to connect Avocet SQL to AF Framework as more secured way to connect to 3rd party MS SQL Server.
+- Note: in near future , I am planning to use Entity Framework to connect Avocet SQL to AF Framework as more secured way to connect to 3rd party MS SQL Server.
+- Note: Also I am looking to add Winform to this DLL File.
  
